@@ -14,13 +14,96 @@
 <body>
   <canvas id="pong" width="1000" height="600"></canvas>
   <script>
-	var canvas = document.getElementById("pong");
-  	var ctx = canvas.getContext("2d");
 
-	function draw() {
-	}
+  var canvas = document.getElementById("pong");
+  var ctx = canvas.getContext("2d");
+  var ballRadius = 10;
+  var x = canvas.width-30;
+  var y = canvas.height/2;
+  var dx = 2;
+  var dy = -2;
+  var paddleHeight = 75;
+  var paddleWidth = 10;
+  var player1Y = (canvas.height-paddleHeight)/2;
+  var player2Y = (canvas.height-paddleHeight)/2;
+  var wPressed = false;//87
+  var sPressed = false;//83
+  var upPressed = false;//38
+  var downPressed = false;//40
 
-	setInterval(draw, 10);
+  document.addEventListener("keydown", keyDownHandler, false);
+  document.addEventListener("keyup", keyUpHandler, false);
+
+  function keyDownHandler(e) {
+    if(e.keyCode == 87) {
+      wPressed = true;
+    }
+    else if(e.keyCode == 83) {
+      sPressed = true;
+    }
+    if(e.keyCode == 38) {
+      upPressed = true;
+    }
+    else if(e.keyCode == 40) {
+      downPressed = true;
+    }
+  }
+  function keyUpHandler(e) {
+    if(e.keyCode == 87) {
+      wPressed = false;
+    }
+    else if(e.keyCode == 83) {
+      sPressed = false;
+    }
+    if(e.keyCode == 38) {
+      upPressed = false;
+    }
+    else if(e.keyCode == 40) {
+      downPressed = false;
+    }
+  }
+
+  function drawPlayer1() {
+    ctx.beginPath();
+    ctx.rect(5, player1Y, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#FFF";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPlayer2() {
+    ctx.beginPath();
+    ctx.rect(canvas.width-paddleWidth-5, player2Y, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#FFF";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPlayer1();
+    drawPlayer2();
+
+    if(wPressed && player1Y > 0) {
+      player1Y -= 7;
+    }
+    else if(sPressed && player1Y < canvas.height-paddleHeight) {
+      player1Y += 7;
+    }
+
+    if(upPressed && player2Y > 0) {
+      player2Y -= 7;
+    }
+    else if(downPressed && player2Y < canvas.height-paddleHeight) {
+      player2Y += 7;
+    }
+
+    x += dx;
+    y += dy;
+  }
+
+  setInterval(draw, 10);
+
   </script>
 </body>
 </html>
