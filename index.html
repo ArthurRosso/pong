@@ -17,19 +17,26 @@
 
   var canvas = document.getElementById("pong");
   var ctx = canvas.getContext("2d");
-  var ballRadius = 10;
-  var x = canvas.width-30;
+  var x = canvas.width/2;
   var y = canvas.height/2;
-  var dx = 2;
-  var dy = -2;
   var paddleHeight = 75;
   var paddleWidth = 10;
   var player1Y = (canvas.height-paddleHeight)/2;
   var player2Y = (canvas.height-paddleHeight)/2;
-  var wPressed = false;//87
-  var sPressed = false;//83
-  var upPressed = false;//38
-  var downPressed = false;//40
+  var wPressed = false; //87
+  var sPressed = false; //83
+  var upPressed = false; //38
+  var downPressed = false;  //40
+  var ballRadius = 10;
+  var dx;
+  if(Math.random() >= 0.5){
+    dx = 3;
+  } else {
+    dx = -3;
+  }
+  var dy = -3;
+  var scorePl1 = 0;
+  var scorePl2 = 0;
 
   document.addEventListener("keydown", keyDownHandler, false);
   document.addEventListener("keyup", keyUpHandler, false);
@@ -79,10 +86,33 @@
     ctx.closePath();
   }
 
+  function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#FFF";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPlayer1Score() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#FFF";
+    ctx.fillText("Player 1 score: "+scorePl1, 20, 20);
+  }
+
+  function drawPlayer2Score() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#FFF";
+    ctx.fillText("Player 2 score: "+scorePl2, canvas.width-148, 20);
+  }
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPlayer1();
     drawPlayer2();
+    drawBall();
+    drawPlayer1Score();
+    drawPlayer2Score();
 
     if(wPressed && player1Y > 0) {
       player1Y -= 7;
@@ -98,8 +128,74 @@
       player2Y += 7;
     }
 
+    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+      dy*= -1;
+    }
+
     x += dx;
     y += dy;
+
+    if(x<0) {
+      scorePl2++;
+      x=canvas.width/2;
+      y=canvas.height/2;
+      if(Math.random() >= 0.5){
+        dx = 3;
+      } else {
+        dx = -3;
+      }
+    }
+
+    if(x>canvas.width) {
+      scorePl1++;
+      x=canvas.width/2;
+      y=canvas.height/2;
+      if(Math.random() >= 0.5){
+        dx = 3;
+      } else {
+        dx = -3;
+      }
+    }
+
+    var bola = {
+      X: x - ballRadius,
+      Y: y - ballRadius,
+      Width: ballRadius * 2,
+      Height: ballRadius * 2
+    }
+
+    var rect1 = {
+      X: 5,
+      Y: player1Y,
+      Width: paddleWidth,
+      Height: paddleHeight
+    }
+    var rect2 = {
+      X: canvas.width-paddleWidth-5,
+      Y: player2Y,
+      Width: paddleWidth,
+      Height: paddleHeight
+    }
+
+    if (collidesWith(rect1, bola)) {
+      if (dx < 0) {
+        dx *= -1.05
+      }
+    }
+
+    if (collidesWith(rect2, bola)) {
+      if (dx > 0) {
+        dx *= -1.05
+      }
+    }
+  }
+
+  function collidesWith(rect1, rect2) {
+    return rangeOverlap(rect1.X, rect1.X + rect1.Width, rect2.X, rect2.X + rect2.Width) && rangeOverlap(rect1.Y, rect1.Y + rect1.Height, rect2.Y, rect2.Y + rect2.Height);
+  }
+
+  function rangeOverlap(a1, a2,  b1,  b2) {
+    return Math.max(a1, a2) >= Math.min(b1, b2) && Math.min(a1, a2) <= Math.max(b1, b2);
   }
 
   setInterval(draw, 10);
